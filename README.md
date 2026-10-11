@@ -2,16 +2,17 @@ English | [Русский](README.ru.md)
 
 # Stream Deck Emulator
 
+> [!WARNING]
+> This is an unofficial project. It is not affiliated with, endorsed by or supported by Elgato or Corsair. Stream Deck is a trademark of Corsair Memory, Inc.
+
 <p align="center">
   <img alt="Stream Deck Emulator: volume and brightness on Stream Deck +, then media controls on Stream Deck Neo" src="assets/demo.gif" width="800">
 </p>
 
+
 A virtual Stream Deck for the real Stream Deck application. The emulator presents itself to Windows as a USB device, so the Stream Deck app, your plugins and your profiles behave exactly as they do with hardware.
 
 It is built for plugin developers who do not own every model.
-
-> [!WARNING]
-> This is an unofficial project. It is not affiliated with, endorsed by or supported by Elgato or Corsair. Stream Deck is a trademark of Corsair Memory, Inc.
 
 ## Supported Models
 
@@ -26,7 +27,6 @@ It is built for plugin developers who do not own every model.
 - **Browser UI**: Click keys, scroll and press dials, click, hold or drag on the touch strip, and see what the app draws on every screen.
 - **Several Devices at Once**: Connect and disconnect each model on its own. The others keep working.
 - **Headless Start**: Connect models from the command line without opening the browser.
-- **Single Binary**: One executable without dependencies besides the USB/IP client.
 
 ## Requirements
 
@@ -37,12 +37,21 @@ It is built for plugin developers who do not own every model.
 ## Quick Start
 
 1. Install usbip-win2.
-2. Download `stream-deck-emulator-windows-amd64.exe` from the [latest release](https://github.com/valentderah/stream-deck-emulator/releases/latest) and run it. The file is not signed, so Windows SmartScreen asks for confirmation on the first start: choose **More info**, then **Run anyway**.
+2. Download `stream-deck-emulator-windows-amd64.exe` from the [latest release](https://github.com/valentderah/stream-deck-emulator/releases/latest) and run it.
 3. Open <http://127.0.0.1:8484>.
 4. Pick a model in the list above the keys and press **Connect**. It appears in the Stream Deck app within a few seconds.
 5. Press **Disconnect** to unplug it. The Stream Deck app remembers the device and its profiles, as it does with real hardware.
 
-## Flags
+## Limitations
+
+- The Neo is implemented from open-source protocol descriptions and has not been compared with a real device. Report anything the app shows differently.
+
+- The web UI has no authentication. Keep it on a loopback address; anyone who can open the page can press your keys.
+
+## Reference
+
+<details>
+<summary>Command-line flags</summary>
 
 | Flag | Default | Meaning |
 |---|---|---|
@@ -52,21 +61,12 @@ It is built for plugin developers who do not own every model.
 | `-connect` | none | Models to connect at start, for example `-connect plus,neo`. |
 | `-version` | | Print the version and exit. |
 
-## Building from Source
-
-Building requires Go 1.27 or higher.
-
-```
-go build -trimpath -o bin/emulator.exe ./cmd/emulator
-bin\emulator.exe
-```
-
-## HTTP API
-
-The web UI talks to the emulator over HTTP, and scripts can do the same: press keys, turn dials and read back what the app drew. The API is not stable yet.
+</details>
 
 <details>
-<summary>Endpoints and examples</summary>
+<summary>HTTP API</summary>
+
+The web UI talks to the emulator over HTTP, and scripts can do the same: press keys, turn dials and read back what the app drew. The API is not stable yet.
 
 `{id}` is a model id: `plus`, `neo` or `mk2`. The examples use a POSIX shell and the default address.
 
@@ -117,9 +117,14 @@ Images are returned as the app sent them. The Neo and the MK.2 receive theirs ro
 
 </details>
 
-## Limitations
+<details>
+<summary>Building from source</summary>
 
-- The Neo is implemented from open-source protocol descriptions and has not been compared with a real device. Report anything the app shows differently.
-- One instance of each model.
-- Attaching devices automatically works with usbip-win2 on Windows. On other systems the USB/IP server runs, but you attach by hand.
-- The web UI has no authentication. Keep it on a loopback address; anyone who can open the page can press your keys.
+Building requires Go 1.27 or higher.
+
+```
+go build -trimpath -o bin/emulator.exe ./cmd/emulator
+bin\emulator.exe
+```
+
+</details>
