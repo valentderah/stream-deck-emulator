@@ -33,18 +33,11 @@ It is built for plugin developers who do not own every model.
 - **Operating System**: Windows 10 or 11
 - **USB/IP Client**: [usbip-win2](https://github.com/vadimgrn/usbip-win2), which creates the virtual USB device (tested with 0.9.7.8)
 - **Elgato Stream Deck Software**
-- **Go**: Version 1.27 or higher to build
 
 ## Quick Start
 
 1. Install usbip-win2.
-2. Build and run the emulator:
-
-   ```
-   go build -trimpath -o bin/emulator.exe ./cmd/emulator
-   bin\emulator.exe
-   ```
-
+2. Download `stream-deck-emulator-windows-amd64.exe` from the [latest release](https://github.com/valentderah/stream-deck-emulator/releases/latest) and run it. The file is not signed, so Windows SmartScreen asks for confirmation on the first start: choose **More info**, then **Run anyway**.
 3. Open <http://127.0.0.1:8484>.
 4. Pick a model in the list above the keys and press **Connect**. It appears in the Stream Deck app within a few seconds.
 5. Press **Disconnect** to unplug it. The Stream Deck app remembers the device and its profiles, as it does with real hardware.
@@ -57,7 +50,16 @@ It is built for plugin developers who do not own every model.
 | `-ui` | `127.0.0.1:8484` | Web UI listen address |
 | `-usbip-cli` | search | Path of the `usbip` client. By default the emulator looks on `PATH`, then in `C:\Program Files\USBip`. |
 | `-connect` | none | Models to connect at start, for example `-connect plus,neo`. |
+| `-version` | | Print the version and exit. |
 
+## Building from Source
+
+Building requires Go 1.27 or higher.
+
+```
+go build -trimpath -o bin/emulator.exe ./cmd/emulator
+bin\emulator.exe
+```
 
 ## HTTP API
 

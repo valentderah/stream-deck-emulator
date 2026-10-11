@@ -3,6 +3,7 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
 	"fmt"
 	"log"
@@ -26,6 +27,9 @@ const (
 	httpPort = "80"
 )
 
+//go:embed VERSION
+var version string
+
 func main() {
 	models := deck.Models()
 	ids := make([]string, len(models))
@@ -37,7 +41,13 @@ func main() {
 	uiAddr := flag.String("ui", "127.0.0.1:8484", "web UI listen address")
 	cliPath := flag.String("usbip-cli", "", "path of the usbip client (default: PATH, then the usbip-win2 install directory)")
 	connect := flag.String("connect", "", "comma-separated models to connect at start: "+strings.Join(ids, ", "))
+	showVersion := flag.Bool("version", false, "print the version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(strings.TrimSpace(version))
+		return
+	}
 
 	auto, err := parseConnect(*connect, ids)
 	if err != nil {
