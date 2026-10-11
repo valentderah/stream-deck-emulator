@@ -1,0 +1,54 @@
+:root {
+  color-scheme: dark;
+  font-size: 14px;
+
+  --page: #1e1e1e;
+  --card: #2d2d2d;
+  --control: #3a3a3a;
+  --control-hover: #454545;
+  --line: #4a4a4a;
+  --text: #d8d8d8;
+  --muted: #9a9a9a;
+  --warn: #d29922;
+
+  --page-pad: 16px;
+  --card-pad: 24px;
+
+  --k: clamp(48px, min((100vw - 84px) / 5.96, (100dvh - 292px) / 3.95), 104px);
+}
+
+[hidden] { display: none !important; }
+
+body {
+  box-sizing: border-box;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0 var(--page-pad) var(--page-pad);
+  display: grid;
+  grid-template-rows: auto 1fr;
+  background: var(--page);
+  font: 1rem system-ui, sans-serif;
+  color: var(--muted);
+}
+
+.title { margin: 0; padding: 16px 0 28px; text-align: center; font-size: 1.25rem; font-weight: 600; color: var(--text); }
+
+select, button { font: inherit; color: var(--text); background: var(--control); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; }
+button { cursor: pointer; }
+button:hover { background: var(--control-hover); }
+
+.device { place-self: start safe center; width: max-content; padding: 20px var(--card-pad) var(--card-pad); background: var(--card); border-radius: 20px; box-shadow: 0 12px 40px #0008; user-select: none; }
+
+.bar, .notice, .hints { width: 0; min-width: 100%; }
+
+.bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+#picker { min-width: 0; margin-right: auto; padding-right: 34px; font-weight: 600; appearance: none; background: var(--control) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 6' fill='none' stroke='%23d8d8d8' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 1l4 4 4-4'/%3E%3C/svg%3E") no-repeat right 12px center / 10px 6px; }.status { flex: none; width: 9px; height: 9px; border-radius: 50%; background: #6a6a6a; }
+.status[data-state="connected"] { background: #3fb950; }
+.status[data-state="connecting"] { background: var(--warn); }
+.status[data-state="error"] { background: #f85149; }
+
+.notice { min-height: 1.3em; margin: 8px 0 16px; color: var(--warn); overflow-wrap: anywhere; user-select: text; }
+
+.hints { display: flex; flex-direction: column; gap: 4px; margin-top: 20px; text-align: center; }
+.hints:empty { display: none; }
+.hint { margin: 0; }

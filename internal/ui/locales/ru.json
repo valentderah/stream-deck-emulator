@@ -1,0 +1,21 @@
+{
+  "app.title": "Эмулятор Stream Deck",
+  "device.label": "Устройство",
+  "action.connect": "Подключить",
+  "action.disconnect": "Отключить",
+  "status.disconnected": "Отключено",
+  "status.connecting": "Подключение…",
+  "status.connected": "Подключено",
+  "status.error": "Не удалось подключить",
+  "hint.dial": "Диск: колесо мыши вращает, клик нажимает.",
+  "hint.strip": "Полоса: клик, удержание или перетаскивание.",
+  "hint.touchkey": "Две боковые кнопки — сенсорные клавиши.",
+  "error.client_not_found": "Клиент USB/IP не найден. Подключите устройство вручную: {detail}",
+  "error.client_failed": "Клиент USB/IP сообщил об ошибке: {detail}",
+  "error.attach_timeout": "Клиент USB/IP не подключил устройство вовремя.",
+  "error.unknown_device": "Неизвестное устройство.",
+  "error.unsupported_input": "У этого устройства нет такого элемента управления.",
+  "error.bad_request": "Эмулятор отклонил запрос.",
+  "error.forbidden": "Эмулятор отказал в запросе с этой страницы.",
+  "error.network": "Эмулятор недоступен."
+}

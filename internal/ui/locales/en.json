@@ -1,0 +1,21 @@
+{
+  "app.title": "Stream Deck Emulator",
+  "device.label": "Device",
+  "action.connect": "Connect",
+  "action.disconnect": "Disconnect",
+  "status.disconnected": "Disconnected",
+  "status.connecting": "Connecting…",
+  "status.connected": "Connected",
+  "status.error": "Connection failed",
+  "hint.dial": "Dial: scroll to rotate, click to press.",
+  "hint.strip": "Strip: click, hold or drag.",
+  "hint.touchkey": "The two side buttons are the touch keys.",
+  "error.client_not_found": "USB/IP client not found. Attach the device by hand: {detail}",
+  "error.client_failed": "The USB/IP client reported an error: {detail}",
+  "error.attach_timeout": "The USB/IP client did not attach the device in time.",
+  "error.unknown_device": "Unknown device.",
+  "error.unsupported_input": "This device does not have that control.",
+  "error.bad_request": "The emulator rejected the request.",
+  "error.forbidden": "The emulator refused the request from this page.",
+  "error.network": "The emulator is not reachable."
+}
