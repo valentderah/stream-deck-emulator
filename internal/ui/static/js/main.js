@@ -33,7 +33,19 @@ function renderBar() {
   statusLamp.setAttribute('aria-label', statusLamp.title);
   toggle.textContent = t(isLive(current) ? 'action.disconnect' : 'action.connect');
   const shown = current.actionError ?? code;
-  notice.textContent = shown ? t(`error.${shown}`, { detail: detail ?? '' }) : '';
+  notice.replaceChildren(...linked(shown ? t(`error.${shown}`, { detail: detail ?? '' }) : ''));
+}
+
+// linked splits text into nodes, turning the https links in it into anchors.
+function linked(text) {
+  return text.split(/(https:\/\/\S+)/).map((part, i) => {
+    if (i % 2 === 0) return part;
+    const a = document.createElement('a');
+    a.href = a.textContent = part;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    return a;
+  });
 }
 
 function renderText() {

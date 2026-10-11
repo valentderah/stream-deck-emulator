@@ -11,6 +11,7 @@
   "hint.strip": "Strip: click, hold or drag.",
   "hint.touchkey": "The two side buttons are the touch keys.",
   "error.client_not_found": "USB/IP client not found. Attach the device by hand: {detail}",
+  "error.client_not_installed": "usbip-win2 is not installed. Download it from {detail} and restart the emulator.",
   "error.client_failed": "The USB/IP client reported an error: {detail}",
   "error.attach_timeout": "The USB/IP client did not attach the device in time.",
   "error.unknown_device": "Unknown device.",

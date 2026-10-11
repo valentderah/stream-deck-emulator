@@ -11,6 +11,7 @@
   "hint.strip": "Полоса: клик, удержание или перетаскивание.",
   "hint.touchkey": "Две боковые кнопки — сенсорные клавиши.",
   "error.client_not_found": "Клиент USB/IP не найден. Подключите устройство вручную: {detail}",
+  "error.client_not_installed": "usbip-win2 не установлен. Скачайте его с {detail} и перезапустите эмулятор.",
   "error.client_failed": "Клиент USB/IP сообщил об ошибке: {detail}",
   "error.attach_timeout": "Клиент USB/IP не подключил устройство вовремя.",
   "error.unknown_device": "Неизвестное устройство.",

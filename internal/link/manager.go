@@ -23,13 +23,14 @@ const (
 
 // Codes sent in a Status. The browser catalog has an entry for each.
 const (
-	CodeClientNotFound = "client_not_found"
-	CodeClientFailed   = "client_failed"
-	CodeAttachTimeout  = "attach_timeout"
+	CodeClientNotFound     = "client_not_found"
+	CodeClientNotInstalled = "client_not_installed"
+	CodeClientFailed       = "client_failed"
+	CodeAttachTimeout      = "attach_timeout"
 )
 
 func Codes() []string {
-	return []string{CodeClientNotFound, CodeClientFailed, CodeAttachTimeout}
+	return []string{CodeClientNotFound, CodeClientNotInstalled, CodeClientFailed, CodeAttachTimeout}
 }
 
 const stopTimeout = 5 * time.Second
@@ -37,7 +38,8 @@ const stopTimeout = 5 * time.Second
 var ErrUnknown = errors.New("link: unknown device")
 
 // Status is the connection state of one device. Code and Detail explain a
-// Failed state, or tell how to attach by hand while Connecting.
+// Failed state, or tell how to attach by hand or where to get the client
+// while Connecting.
 type Status struct {
 	ID     string `json:"id"`
 	State  State  `json:"state"`
@@ -54,6 +56,9 @@ type Exporter interface {
 // Client is the local USB/IP client.
 type Client interface {
 	Available() bool
+	// InstallURL is where to download the client for this system, or "" if
+	// there is no known download.
+	InstallURL() string
 	// Attach asks the client to import busID from the emulator.
 	Attach(ctx context.Context, busID string) error
 	// Stop ends the client's attach attempts for busID.
@@ -152,6 +157,9 @@ func (m *Manager) Connect(id string) error {
 	manual := !m.client.Available()
 	if manual {
 		status.Code, status.Detail = CodeClientNotFound, m.client.Command(e.BusID)
+		if url := m.client.InstallURL(); url != "" {
+			status.Code, status.Detail = CodeClientNotInstalled, url
+		}
 	}
 	m.set(e, status)
 	m.mu.Unlock()

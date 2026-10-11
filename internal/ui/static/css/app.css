@@ -48,6 +48,7 @@ button:hover { background: var(--control-hover); }
 .status[data-state="error"] { background: #f85149; }
 
 .notice { min-height: 1.3em; margin: 8px 0 16px; color: var(--warn); overflow-wrap: anywhere; user-select: text; }
+.notice a { color: inherit; }
 
 .hints { display: flex; flex-direction: column; gap: 4px; margin-top: 20px; text-align: center; }
 .hints:empty { display: none; }

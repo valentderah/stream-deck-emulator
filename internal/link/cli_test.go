@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"runtime"
 	"strings"
 	"testing"
 )
@@ -50,6 +51,12 @@ func TestCLIAvailable(t *testing.T) {
 	}
 	if !(CLI{Path: "x"}).Available() {
 		t.Error("path set but not available")
+	}
+}
+
+func TestCLIInstallURL(t *testing.T) {
+	if got := (CLI{}).InstallURL(); (got != "") != (runtime.GOOS == "windows") {
+		t.Errorf("got %q on %s", got, runtime.GOOS)
 	}
 }
 

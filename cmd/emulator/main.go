@@ -91,9 +91,13 @@ func main() {
 
 	log.Printf("USB/IP on %s", usbipBound)
 	log.Printf("UI on http://%s", uiBound)
-	if client.Available() {
+	switch url := client.InstallURL(); {
+	case client.Available():
 		log.Printf("usbip client: %s", client.Path)
-	} else {
+	case url != "":
+		log.Print("usbip client not found: devices cannot attach without usbip-win2")
+		log.Printf("install it from %s and restart the emulator, or point -usbip-cli at usbip.exe", url)
+	default:
 		log.Print("usbip client not found: attach devices by hand, the UI shows the command")
 	}
 	for _, id := range auto {

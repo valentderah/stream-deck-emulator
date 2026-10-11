@@ -5,10 +5,15 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 )
 
-const defaultPort = "3240"
+const (
+	defaultPort = "3240"
+	// win2URL is where to download usbip-win2, the client for Windows.
+	win2URL = "https://github.com/vadimgrn/usbip-win2/releases"
+)
 
 // installPaths are where the usbip-win2 installer puts the client.
 var installPaths = []string{`C:\Program Files\USBip\usbip.exe`}
@@ -37,6 +42,13 @@ func FindCLI(explicit string) string {
 }
 
 func (c CLI) Available() bool { return c.Path != "" }
+
+func (c CLI) InstallURL() string {
+	if runtime.GOOS == "windows" {
+		return win2URL
+	}
+	return ""
+}
 
 func (c CLI) Attach(ctx context.Context, busID string) error {
 	return c.run(ctx, c.args(busID, "--once")...)

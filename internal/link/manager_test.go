@@ -64,7 +64,8 @@ func (e *fakeExp) count() int {
 }
 
 type fakeClient struct {
-	available bool
+	available  bool
+	installURL string
 	// attach is the behaviour of Attach; nil means succeed.
 	attach func(ctx context.Context, busID string) error
 
@@ -72,7 +73,8 @@ type fakeClient struct {
 	stopped []string
 }
 
-func (c *fakeClient) Available() bool { return c.available }
+func (c *fakeClient) Available() bool    { return c.available }
+func (c *fakeClient) InstallURL() string { return c.installURL }
 func (c *fakeClient) Attach(ctx context.Context, busID string) error {
 	if c.attach == nil {
 		return nil
@@ -205,6 +207,16 @@ func TestClientNotFound(t *testing.T) {
 	r.m.SessionChanged("1-1", true)
 	if s := r.status(); s.State != Connected || s.Code != "" {
 		t.Errorf("after a manual attach: %+v", s)
+	}
+}
+
+func TestClientNotInstalled(t *testing.T) {
+	r := newRig(time.Second)
+	r.client.available = false
+	r.client.installURL = "https://example.test/usbip"
+	r.m.Connect("plus")
+	if s := r.status(); s.State != Connecting || s.Code != CodeClientNotInstalled || s.Detail != "https://example.test/usbip" {
+		t.Errorf("status %+v", s)
 	}
 }
 
