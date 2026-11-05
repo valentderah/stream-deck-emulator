@@ -145,11 +145,11 @@ var Module = Model{
 	Features:  features(unitInfo(3, 5, 72, 480, 272)),
 }
 
-// ModuleVert is the module mounted upright. The product id is a placeholder.
+// ModuleVert is the module mounted upright.
 var ModuleVert = Model{
 	ID:        "module-vert",
 	Name:      "Stream Deck Module Vertical",
-	ProductID: 0xf001,
+	ProductID: 0x00b9, // same as Module
 	Serial:    "EMU00000000007",
 	Rows:      5,
 	Cols:      3,
@@ -169,30 +169,6 @@ var Studio = Model{
 	Features:  features(unitInfo(2, 16, 144, 2304, 288)),
 }
 
-// Mobile has no USB product; the product id is a placeholder.
-var Mobile = Model{
-	ID:        "mobile",
-	Name:      "Stream Deck Mobile",
-	ProductID: 0xf002,
-	Serial:    "EMU00000000009",
-	Rows:      2,
-	Cols:      4,
-	KeySize:   96,
-	Features:  features(unitInfo(2, 4, 96, 480, 320)),
-}
-
-// CorsairKB has no Elgato USB product; the product id is a placeholder.
-var CorsairKB = Model{
-	ID:        "corsair-kb",
-	Name:      "Stream Deck Corsair Keyboard",
-	ProductID: 0xf003,
-	Serial:    "EMU00000000010",
-	Rows:      6,
-	Cols:      1,
-	KeySize:   72,
-	Features:  features(unitInfo(6, 1, 72, 72, 432)),
-}
-
 // Pedal has three keys and no displays: images sent to it are ignored.
 var Pedal = Model{
 	ID:        "pedal",
@@ -206,7 +182,7 @@ var Pedal = Model{
 
 // Models lists the emulated variants in bus order.
 func Models() []Model {
-	return []Model{Plus, Neo, MK2, XL, PlusXL, Module, ModuleVert, Studio, Mobile, CorsairKB, Pedal}
+	return []Model{Plus, Neo, MK2, XL, PlusXL, Module, ModuleVert, Studio, Pedal}
 }
 
 func ModelByID(id string) (Model, bool) {

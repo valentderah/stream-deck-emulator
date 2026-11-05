@@ -22,10 +22,8 @@ test('key orientation corrections preserve layout and input indices', () => {
     ['xl', 4, 8, true, false, 'face rotated'],
     ['plus-xl', 4, 9, false, true, 'face quarter-turn'],
     ['module', 3, 5, true, false, 'face rotated'],
-    ['module-vert', 5, 3, true, false, 'face rotated'],
+    ['module-vert', 5, 3, true, false, 'face quarter-turn'],
     ['studio', 2, 16, false, false, 'face'],
-    ['mobile', 2, 4, false, false, 'face'],
-    ['corsair-kb', 6, 1, false, false, 'face'],
     ['pedal', 1, 3, false, false, 'face'],
   ];
   for (const [id, rows, cols, rotated, quarterTurn, className] of models) {
