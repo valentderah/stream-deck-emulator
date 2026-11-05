@@ -31,10 +31,8 @@ func TestModels(t *testing.T) {
 		{"xl", 0x006c, 32, 96, true},
 		{"plus-xl", 0x00c6, 36, 120, false},
 		{"module", 0x00b9, 15, 72, true},
-		{"module-vert", 0xf001, 15, 72, true},
+		{"module-vert", 0x00b9, 15, 72, true},
 		{"studio", 0x00aa, 32, 144, false},
-		{"mobile", 0xf002, 8, 96, false},
-		{"corsair-kb", 0xf003, 6, 72, false},
 		{"pedal", 0x0086, 3, 0, false},
 	}
 	models := Models()
@@ -68,7 +66,7 @@ func TestModels(t *testing.T) {
 func TestModelGeometry(t *testing.T) {
 	want := map[string][2]int{
 		"xl": {4, 8}, "plus-xl": {4, 9}, "module": {3, 5}, "module-vert": {5, 3},
-		"studio": {2, 16}, "mobile": {2, 4}, "corsair-kb": {6, 1}, "pedal": {1, 3},
+		"studio": {2, 16}, "pedal": {1, 3},
 	}
 	for id, rc := range want {
 		m, ok := ModelByID(id)

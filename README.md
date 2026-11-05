@@ -24,10 +24,8 @@ It is built for plugin developers who do not own every model.
 | Stream Deck XL | `xl` | 32 keys (8x4) |
 | Stream Deck + XL | `plus-xl` | 36 keys (9x4), 6 dials, touch strip |
 | Stream Deck Module | `module` | 15 keys (5x3) |
-| Stream Deck Module Vertical | `module-vert` | 15 keys (3x5), placeholder product id |
+| Stream Deck Module Vertical | `module-vert` | 15 keys (3x5), same product id as Module |
 | Stream Deck Studio | `studio` | 32 keys (16x2) |
-| Stream Deck Mobile | `mobile` | 8 keys (4x2), placeholder product id |
-| Stream Deck Corsair Keyboard | `corsair-kb` | 6 keys (1x6), placeholder product id |
 | Stream Deck Pedal | `pedal` | 3 keys, no displays |
 
 All models speak the v2 protocol. The original Stream Deck and the Mini use the older v1 protocol and are not emulated yet.

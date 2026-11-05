@@ -23,10 +23,8 @@
 | Stream Deck XL | `xl` | 32 клавиши (8x4) |
 | Stream Deck + XL | `plus-xl` | 36 клавиш (9x4), 6 дисков, сенсорная полоса |
 | Stream Deck Module | `module` | 15 клавиш (5x3) |
-| Stream Deck Module Vertical | `module-vert` | 15 клавиш (3x5), условный идентификатор продукта |
+| Stream Deck Module Vertical | `module-vert` | 15 клавиш (3x5), такой же идентификатор продукта, как у Module |
 | Stream Deck Studio | `studio` | 32 клавиши (16x2) |
-| Stream Deck Mobile | `mobile` | 8 клавиш (4x2), условный идентификатор продукта |
-| Stream Deck Corsair Keyboard | `corsair-kb` | 6 клавиш (1x6), условный идентификатор продукта |
 | Stream Deck Pedal | `pedal` | 3 клавиши, без экранов |
 
 Все модели используют протокол v2. Оригинальный Stream Deck и Mini работают по старому протоколу v1 и пока не эмулируются.
