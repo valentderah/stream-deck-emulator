@@ -28,6 +28,14 @@ func TestModels(t *testing.T) {
 		{"plus", 0x0084, 8, 120, false},
 		{"neo", 0x009a, 8, 96, true},
 		{"mk2", 0x0080, 15, 72, true},
+		{"xl", 0x006c, 32, 96, true},
+		{"plus-xl", 0x00c6, 36, 120, false},
+		{"module", 0x00b9, 15, 72, true},
+		{"module-vert", 0xf001, 15, 72, true},
+		{"studio", 0x00aa, 32, 144, false},
+		{"mobile", 0xf002, 8, 96, false},
+		{"corsair-kb", 0xf003, 6, 72, false},
+		{"pedal", 0x0086, 3, 0, false},
 	}
 	models := Models()
 	if len(models) != len(want) {
@@ -35,6 +43,9 @@ func TestModels(t *testing.T) {
 	}
 	for i, w := range want {
 		m := models[i]
+		if m.QuarterTurn != (w.id == "plus-xl") {
+			t.Errorf("%s: quarter turn %v", w.id, m.QuarterTurn)
+		}
 		if m.ID != w.id || m.ProductID != w.pid || m.Keys() != w.keys || m.KeySize != w.keySize || m.Rotated != w.rotated {
 			t.Errorf("model %d: %+v", i, m)
 		}
@@ -49,8 +60,100 @@ func TestModels(t *testing.T) {
 			t.Errorf("ModelByID(%q) failed", w.id)
 		}
 	}
-	if _, ok := ModelByID("xl"); ok {
+	if _, ok := ModelByID("nope"); ok {
 		t.Error("ModelByID accepted an unknown id")
+	}
+}
+
+func TestModelGeometry(t *testing.T) {
+	want := map[string][2]int{
+		"xl": {4, 8}, "plus-xl": {4, 9}, "module": {3, 5}, "module-vert": {5, 3},
+		"studio": {2, 16}, "mobile": {2, 4}, "corsair-kb": {6, 1}, "pedal": {1, 3},
+	}
+	for id, rc := range want {
+		m, ok := ModelByID(id)
+		if !ok {
+			t.Errorf("%s: missing", id)
+			continue
+		}
+		if m.Rows != rc[0] || m.Cols != rc[1] {
+			t.Errorf("%s: %dx%d rows by cols", id, m.Rows, m.Cols)
+		}
+		if info := m.Features[0x08]; int(info[0]) != m.Rows || int(info[1]) != m.Cols {
+			t.Errorf("%s: unit info %v", id, info)
+		}
+	}
+}
+
+func TestProductIDsAreUnique(t *testing.T) {
+	seen := map[uint16]string{}
+	for _, m := range Models() {
+		if other, ok := seen[m.ProductID]; ok {
+			t.Errorf("%s and %s share product id %#04x", m.ID, other, m.ProductID)
+		}
+		seen[m.ProductID] = m.ID
+	}
+}
+
+func TestPlusXL(t *testing.T) {
+	d := attached(PlusXL)
+	if err := d.PressDial(5, true); err != nil {
+		t.Fatal(err)
+	}
+	r := <-d.In()
+	if !bytes.Equal(r[:6], []byte{0x01, 0x03, 0x07, 0x00, 0x00, 0x00}) || r[offDialValues+5] != 1 || r[offDialValues+4] != 0 {
+		t.Errorf("dial press %x", r[:12])
+	}
+	if err := d.PressDial(6, true); !errors.Is(err, ErrInput) {
+		t.Errorf("dial 6: %v", err)
+	}
+	if err := d.RotateDial(5, -2); err != nil {
+		t.Fatal(err)
+	}
+	if r := <-d.In(); r[offDialAction] != dialRotate || int8(r[offDialValues+5]) != -2 {
+		t.Errorf("dial rotate %x", r[:12])
+	}
+	if err := d.SetKey(35, true); err != nil {
+		t.Fatal(err)
+	}
+	if r := <-d.In(); !bytes.Equal(r[:4], []byte{0x01, 0x00, 0x24, 0x00}) || r[4+35] != 1 {
+		t.Errorf("key report %x", r[:8])
+	}
+	if err := d.SetKey(36, true); !errors.Is(err, ErrInput) {
+		t.Errorf("key 36: %v", err)
+	}
+	if err := d.Touch(TouchShort, 1199, 99, 0, 0); err != nil {
+		t.Errorf("touch at the strip corner: %v", err)
+	}
+	if err := d.Touch(TouchShort, 1200, 0, 0, 0); !errors.Is(err, ErrInput) {
+		t.Errorf("touch past the strip: %v", err)
+	}
+	if got := d.Strip().Bounds(); got.Dx() != 1200 || got.Dy() != 100 {
+		t.Errorf("strip %v", got)
+	}
+}
+
+func TestPedalIgnoresKeyImages(t *testing.T) {
+	d := attached(Pedal)
+	events, cancel := d.Subscribe()
+	defer cancel()
+	d.Out(0, keyChunk(0, 0, true, []byte{1}))
+	if d.KeyImage(0) != nil {
+		t.Error("the pedal stored a key image")
+	}
+	select {
+	case e := <-events:
+		t.Errorf("unexpected event %+v", e)
+	default:
+	}
+	if err := d.SetKey(2, true); err != nil {
+		t.Fatal(err)
+	}
+	if r := <-d.In(); r[4+2] != 1 {
+		t.Errorf("report %x", r[:8])
+	}
+	if err := d.PressDial(0, true); !errors.Is(err, ErrInput) {
+		t.Errorf("dial: %v", err)
 	}
 }
 

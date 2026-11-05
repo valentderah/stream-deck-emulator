@@ -101,7 +101,7 @@ func TestDevices(t *testing.T) {
 	if err := json.Unmarshal(rec.Body.Bytes(), &list); err != nil {
 		t.Fatal(err)
 	}
-	if len(list) != 3 {
+	if len(list) != len(deck.Models()) {
 		t.Fatalf("got %d devices", len(list))
 	}
 	plus, neo, mk2 := list[0], list[1], list[2]
@@ -116,6 +116,19 @@ func TestDevices(t *testing.T) {
 	}
 	if plus.Link.State != link.Connected {
 		t.Errorf("plus link: %+v", plus.Link)
+	}
+	byID := map[string]deviceInfo{}
+	for _, d := range list {
+		byID[d.ID] = d
+		if d.QuarterTurn != (d.ID == "plus-xl") {
+			t.Errorf("%s: quarter turn %v", d.ID, d.QuarterTurn)
+		}
+	}
+	if x := byID["plus-xl"]; x.Rows != 4 || x.Cols != 9 || x.Dials != 6 || x.Strip == nil || x.Strip.W != 1200 || x.Screen != nil {
+		t.Errorf("plus-xl: %+v", x)
+	}
+	if p := byID["pedal"]; p.Rows != 1 || p.Cols != 3 || p.KeySize != 0 || p.Strip != nil {
+		t.Errorf("pedal: %+v", p)
 	}
 }
 
@@ -168,10 +181,10 @@ func TestStripAndScreen(t *testing.T) {
 func TestUnknownDevice(t *testing.T) {
 	r := newRig([]string{testHost})
 	for _, req := range [][2]string{
-		{"GET", "/api/devices/xl/key/0"},
-		{"POST", "/api/devices/xl/input"},
-		{"POST", "/api/devices/xl/connect"},
-		{"POST", "/api/devices/xl/disconnect"},
+		{"GET", "/api/devices/nope/key/0"},
+		{"POST", "/api/devices/nope/input"},
+		{"POST", "/api/devices/nope/connect"},
+		{"POST", "/api/devices/nope/disconnect"},
 	} {
 		rec := r.do(req[0], req[1], "{}")
 		if rec.Code != http.StatusNotFound || errorCode(t, rec) != "unknown_device" {
@@ -343,11 +356,19 @@ func TestEventsSnapshot(t *testing.T) {
 		t.Errorf("content type %q", ct)
 	}
 
-	// 3 brightness + 2 Neo touch keys + 3 link statuses.
+	// A brightness event per model, 2 Neo touch keys, then 3 link statuses.
+	var want []string
+	for _, m := range deck.Models() {
+		want = append(want, m.ID+":brightness")
+		for range m.TouchKeys {
+			want = append(want, m.ID+":touchkey")
+		}
+	}
+	want = append(want, "plus:link", "neo:link", "mk2:link")
 	var kinds []string
 	var last message
 	scanner := bufio.NewScanner(res.Body)
-	for len(kinds) < 8 && scanner.Scan() {
+	for len(kinds) < len(want) && scanner.Scan() {
 		data, ok := strings.CutPrefix(scanner.Text(), "data: ")
 		if !ok {
 			continue
@@ -357,7 +378,6 @@ func TestEventsSnapshot(t *testing.T) {
 		}
 		kinds = append(kinds, last.Device+":"+last.Kind)
 	}
-	want := []string{"plus:brightness", "neo:brightness", "neo:touchkey", "neo:touchkey", "mk2:brightness", "plus:link", "neo:link", "mk2:link"}
 	if !reflect.DeepEqual(kinds, want) {
 		t.Errorf("got %v", kinds)
 	}

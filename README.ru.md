@@ -20,6 +20,16 @@
 | Stream Deck + | `plus` | 8 клавиш, 4 диска, сенсорная полоса |
 | Stream Deck Neo | `neo` | 8 клавиш, 2 сенсорные клавиши, инфо-экран |
 | Stream Deck MK.2 | `mk2` | 15 клавиш |
+| Stream Deck XL | `xl` | 32 клавиши (8x4) |
+| Stream Deck + XL | `plus-xl` | 36 клавиш (9x4), 6 дисков, сенсорная полоса |
+| Stream Deck Module | `module` | 15 клавиш (5x3) |
+| Stream Deck Module Vertical | `module-vert` | 15 клавиш (3x5), условный идентификатор продукта |
+| Stream Deck Studio | `studio` | 32 клавиши (16x2) |
+| Stream Deck Mobile | `mobile` | 8 клавиш (4x2), условный идентификатор продукта |
+| Stream Deck Corsair Keyboard | `corsair-kb` | 6 клавиш (1x6), условный идентификатор продукта |
+| Stream Deck Pedal | `pedal` | 3 клавиши, без экранов |
+
+Все модели используют протокол v2. Оригинальный Stream Deck и Mini работают по старому протоколу v1 и пока не эмулируются.
 
 ## Возможности
 
@@ -112,7 +122,7 @@ curl -X POST http://127.0.0.1:8484/api/devices/plus/input -d '{"type":"touch","k
 curl -o key0.jpg http://127.0.0.1:8484/api/devices/plus/key/0
 ```
 
-Изображения отдаются в том виде, в каком их прислало приложение. Neo и MK.2 получают их повёрнутыми на 180 градусов; какие модели так делают, показывает поле `rotated` в `GET /api/devices`.
+JPEG клавиш и инфо-экрана отдаются в том виде, в каком их прислало приложение. Поле `rotated` в `GET /api/devices` указывает на коррекцию на 180 градусов (Neo, MK.2, XL и варианты Module). Поле `quarterTurn` указывает на коррекцию JPEG клавиш + XL на 90 градусов по часовой стрелке. Браузер применяет коррекцию, не меняя порядок клавиш. PNG сенсорной полосы уже ориентированы правильно: области + XL поворачиваются до сборки полосы, а координаты касаний не меняются.
 
 </details>
 
@@ -125,5 +135,7 @@ curl -o key0.jpg http://127.0.0.1:8484/api/devices/plus/key/0
 go build -trimpath -o bin/emulator.exe ./cmd/emulator
 bin\emulator.exe
 ```
+
+Тесты Go запускаются командой `go test ./...`. Для тестов браузерной раскладки нужен Node.js 22.12 или новее: `node --test internal/ui/deck.test.mjs`.
 
 </details>

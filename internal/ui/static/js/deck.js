@@ -42,7 +42,7 @@ function pressable(node, report) {
 function buildKeys(deck, info, send) {
   for (let i = 0; i < info.rows * info.cols; i++) {
     const key = el('div', 'key', deck.panel);
-    deck.keys.push(picture(info.rotated ? 'face rotated' : 'face', key));
+    deck.keys.push(picture(info.quarterTurn ? 'face quarter-turn' : info.rotated ? 'face rotated' : 'face', key));
     pressable(key, down => send({ type: 'key', index: i, down }));
   }
 }
@@ -77,8 +77,11 @@ function buildStrip(deck, info, send) {
 }
 
 function buildDials(deck, info, send) {
+  // Centre a row of dials that is narrower than the key grid.
+  const offset = Math.max(0, Math.floor((info.cols - info.dials) / 2));
   for (let i = 0; i < info.dials; i++) {
     const dial = el('div', 'dial', deck.panel);
+    if (i === 0 && offset) dial.style.gridColumnStart = offset + 1;
     let angle = 0;
     dial.addEventListener('wheel', e => {
       e.preventDefault();
@@ -115,6 +118,7 @@ export function createDeck(info, send) {
   const deck = { panel: el('div', 'panel'), keys: [], touchKeys: [], strip: null, screen: null };
   deck.panel.dataset.model = info.id;
   deck.panel.style.setProperty('--cols', info.cols);
+  deck.panel.style.setProperty('--rows', info.rows);
   buildKeys(deck, info, send);
   if (info.strip) buildStrip(deck, info, send);
   if (info.dials) buildDials(deck, info, send);

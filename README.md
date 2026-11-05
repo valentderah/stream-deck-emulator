@@ -21,6 +21,16 @@ It is built for plugin developers who do not own every model.
 | Stream Deck + | `plus` | 8 keys, 4 dials, touch strip |
 | Stream Deck Neo | `neo` | 8 keys, 2 touch keys, info screen |
 | Stream Deck MK.2 | `mk2` | 15 keys |
+| Stream Deck XL | `xl` | 32 keys (8x4) |
+| Stream Deck + XL | `plus-xl` | 36 keys (9x4), 6 dials, touch strip |
+| Stream Deck Module | `module` | 15 keys (5x3) |
+| Stream Deck Module Vertical | `module-vert` | 15 keys (3x5), placeholder product id |
+| Stream Deck Studio | `studio` | 32 keys (16x2) |
+| Stream Deck Mobile | `mobile` | 8 keys (4x2), placeholder product id |
+| Stream Deck Corsair Keyboard | `corsair-kb` | 6 keys (1x6), placeholder product id |
+| Stream Deck Pedal | `pedal` | 3 keys, no displays |
+
+All models speak the v2 protocol. The original Stream Deck and the Mini use the older v1 protocol and are not emulated yet.
 
 ## Features
 
@@ -45,8 +55,34 @@ It is built for plugin developers who do not own every model.
 ## Limitations
 
 - The Neo is implemented from open-source protocol descriptions and has not been compared with a real device. Report anything the app shows differently.
+- The XL, + XL, Module, Studio and Pedal are in the same state: their product ids, key sizes, rotation and panel sizes are best-effort values. The Module Vertical, Mobile and Corsair Keyboard have no Elgato USB product, so they use placeholder product ids (`0xf001` to `0xf003`) and the Stream Deck app will not recognise them.
+- See [Finding the real product ids](#finding-the-real-product-ids) to replace the guesses with values from your own hardware.
 
 - The web UI has no authentication. Keep it on a loopback address; anyone who can open the page can press your keys.
+
+## Finding the real product ids
+
+With a real Stream Deck plugged in, run these in PowerShell. Elgato's vendor id is `0FD9`; the four hex digits after `PID_` are the product id (for example `PID_0084` is `0x0084`, the Stream Deck +).
+
+```powershell
+# Product id, name and serial of every connected Stream Deck
+Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like 'USB\VID_0FD9*' } |
+  Select-Object FriendlyName, InstanceId
+
+# The same, with the product id as a number
+Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match '^USB\\VID_0FD9&PID_([0-9A-F]{4})' } |
+  ForEach-Object { [pscustomobject]@{ Name = $_.FriendlyName; ProductId = '0x' + $Matches[1] } }
+```
+
+To read the unit info (key grid, key size, panel size) that the emulator replays, build a device interface path for `hidprobe` and run it with the real device attached:
+
+```powershell
+$id = (Get-PnpDevice -Class HIDClass -PresentOnly | Where-Object { $_.InstanceId -like 'HID\VID_0FD9*' } | Select-Object -First 1).InstanceId
+$path = '\\?\' + ($id -replace '\\', '#') + '#{4d1e55b2-f16f-11cf-88cb-001111000030}'
+go run ./cmd/hidprobe -path $path
+```
+
+Compare the output with the `unitInfo(...)` call of the model in `internal/deck/model.go`, then send the values in an issue or change the model directly.
 
 ## Reference
 
@@ -113,7 +149,7 @@ Save what the app drew on key 0:
 curl -o key0.jpg http://127.0.0.1:8484/api/devices/plus/key/0
 ```
 
-Images are returned as the app sent them. The Neo and the MK.2 receive theirs rotated by 180 degrees; `rotated` in `GET /api/devices` tells which models do.
+Key and info screen JPEGs are returned as the app sent them. `rotated` in `GET /api/devices` indicates a 180-degree display correction (Neo, MK.2, XL and Module variants). `quarterTurn` indicates a 90-degree clockwise correction for + XL key JPEGs. The browser applies these corrections without changing key order. Touch strip PNGs are already upright: + XL regions are rotated clockwise before composition, keeping touch coordinates unchanged.
 
 </details>
 
@@ -126,5 +162,7 @@ Building requires Go 1.27 or higher.
 go build -trimpath -o bin/emulator.exe ./cmd/emulator
 bin\emulator.exe
 ```
+
+Run the Go tests with `go test ./...`. With Node.js 22.12 or newer, run the browser layout tests with `node --test internal/ui/deck.test.mjs`.
 
 </details>

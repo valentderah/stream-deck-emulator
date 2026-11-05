@@ -50,23 +50,25 @@ type Linker interface {
 }
 
 type deviceInfo struct {
-	ID        string      `json:"id"`
-	Name      string      `json:"name"`
-	Rows      int         `json:"rows"`
-	Cols      int         `json:"cols"`
-	KeySize   int         `json:"keySize"`
-	Rotated   bool        `json:"rotated"`
-	Dials     int         `json:"dials"`
-	Strip     *deck.Size  `json:"strip"`
-	Screen    *deck.Size  `json:"screen"`
-	TouchKeys int         `json:"touchKeys"`
-	Link      link.Status `json:"link"`
+	ID          string      `json:"id"`
+	Name        string      `json:"name"`
+	Rows        int         `json:"rows"`
+	Cols        int         `json:"cols"`
+	KeySize     int         `json:"keySize"`
+	Rotated     bool        `json:"rotated"`
+	QuarterTurn bool        `json:"quarterTurn"`
+	Dials       int         `json:"dials"`
+	Strip       *deck.Size  `json:"strip"`
+	Screen      *deck.Size  `json:"screen"`
+	TouchKeys   int         `json:"touchKeys"`
+	Link        link.Status `json:"link"`
 }
 
 func describe(m deck.Model, status link.Status) deviceInfo {
 	info := deviceInfo{
 		ID: m.ID, Name: m.Name, Rows: m.Rows, Cols: m.Cols, KeySize: m.KeySize,
 		Rotated: m.Rotated, Dials: m.Dials, TouchKeys: m.TouchKeys, Link: status,
+		QuarterTurn: m.QuarterTurn,
 	}
 	if !m.Strip.Empty() {
 		info.Strip = &m.Strip
