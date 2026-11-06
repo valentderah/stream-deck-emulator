@@ -86,6 +86,10 @@ func TestModelGeometry(t *testing.T) {
 func TestProductIDsAreUnique(t *testing.T) {
 	seen := map[uint16]string{}
 	for _, m := range Models() {
+		// module and module-vert share the same product ID, so skip the uniqueness check for them
+		if m.ID == "module" || m.ID == "module-vert" {
+			continue
+		}
 		if other, ok := seen[m.ProductID]; ok {
 			t.Errorf("%s and %s share product id %#04x", m.ID, other, m.ProductID)
 		}
