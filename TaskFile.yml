@@ -1,0 +1,27 @@
+---
+
+version: '3'
+vars: {}
+
+dotenv:
+  - .secrets
+  - .env
+
+tasks:
+
+  build-snapshot:
+    internal: true
+    desc: 'CI job "build-snapshot": goreleaser snapshot of every target'
+    cmds:
+      - goreleaser build --snapshot --clean
+
+  build:
+    cmds:
+      - task: build-snapshot
+
+  run:
+    cmds:
+      - task: build
+      - ./dist/stream-deck-emulator-windows_windows_amd64_v1/stream-deck-emulator.exe -version
+      - ./dist/stream-deck-emulator-windows_windows_amd64_v1/stream-deck-emulator.exe -help
+      - ./dist/stream-deck-emulator-windows_windows_amd64_v1/stream-deck-emulator.exe

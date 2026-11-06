@@ -16,6 +16,8 @@ func (d *Device) Out(_ uint32, data []byte) {
 		return
 	}
 	switch cmd := data[offOutputCommand]; {
+	case cmd == outKeyImage && d.model.KeySize == 0:
+		// A model without key displays takes no key images.
 	case cmd == outKeyImage:
 		d.keyChunk(data)
 	case cmd == outStripImage && !d.model.Strip.Empty():
@@ -132,8 +134,22 @@ func (d *Device) stripChunk(report []byte) {
 		log.Printf("deck: %s: decode strip region %dx%d at %d,%d: %v", d.model.ID, w, h, x, y, err)
 		return
 	}
+	if d.model.QuarterTurn {
+		img = rotateClockwise(img)
+	}
 	d.mu.Lock()
 	draw.Draw(d.strip, image.Rect(x, y, x+w, y+h), img, img.Bounds().Min, draw.Src)
 	d.mu.Unlock()
 	d.publish(Event{Kind: EventStrip})
+}
+
+func rotateClockwise(src image.Image) image.Image {
+	b := src.Bounds()
+	dst := image.NewRGBA(image.Rect(0, 0, b.Dy(), b.Dx()))
+	for y := 0; y < b.Dy(); y++ {
+		for x := 0; x < b.Dx(); x++ {
+			dst.Set(b.Dy()-1-y, x, src.At(b.Min.X+x, b.Min.Y+y))
+		}
+	}
+	return dst
 }

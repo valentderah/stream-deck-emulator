@@ -27,8 +27,11 @@ const (
 	httpPort = "80"
 )
 
-//go:embed VERSION
-var version string
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+)
 
 func main() {
 	models := deck.Models()
@@ -45,7 +48,7 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println(strings.TrimSpace(version))
+		fmt.Println(strings.TrimSpace(fmt.Sprintf("stream-deck-emulator %s (commit %s, built %s)", version, commit, date)))
 		return
 	}
 

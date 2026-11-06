@@ -16,7 +16,9 @@ const (
 )
 
 // installPaths are where the usbip-win2 installer puts the client.
-var installPaths = []string{`C:\Program Files\USBip\usbip.exe`}
+// use env:PROGRAMFILES to locate the installation directory.
+var programFiles = os.Getenv("PROGRAMFILES")
+var installPaths = []string{programFiles + `\USBip\usbip.exe`}
 
 // CLI drives the usbip command-line client. Host and Port are where the
 // client reaches the emulator's USB/IP server.

@@ -1,0 +1,81 @@
+version: 2
+
+project_name: stream-deck-emulator
+metadata:
+  mod_timestamp: "{{ .CommitTimestamp }}"
+
+release:
+  prerelease: auto
+  # SD_EMULATOR_DRY_RUN=true builds everything and writes the package manifests to
+  # dist/ without creating a GitHub release or pushing to the tap repos.
+  # SD_EMULATOR_SKIP_GITHUB_RELEASE=true leaves an already-published GitHub release alone
+  # while still publishing the winget/scoop/homebrew manifests (goreleaser has no
+  # standalone `--skip=github`; this is the supported way to skip just that pipe).
+  disable: '{{ if or (eq (envOrDefault "SD_EMULATOR_DRY_RUN" "false") "true") (eq (envOrDefault "SD_EMULATOR_SKIP_GITHUB_RELEASE" "false") "true") }}true{{ else }}false{{ end }}'
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: stream-deck-emulator-windows
+    main: ./cmd/emulator
+    binary: stream-deck-emulator
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - windows
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - -s -w
+      - -X stream-deck-plus-emulator/cmd/main.version={{.Version}}
+      - -X stream-deck-plus-emulator/cmd/main.commit={{.ShortCommit}}
+      - -X stream-deck-plus-emulator/cmd/main.date={{.Date}}
+    hooks:
+      pre:
+        - go tool go-winres make --in winres/winres.json --arch={{ .Arch }} --product-version={{ .Version }} --file-version={{ .Version }} --out ./cmd/emulator/rsrc
+
+      post:
+        # Per-arch, NOT a 'rsrc_*.syso' glob: goreleaser builds the amd64 and
+        # arm64 targets concurrently, so a glob delete from whichever finishes
+        # first removes the other target's still-needed .syso mid-compile.
+        - rm -f cmd/emulator/rsrc_windows_{{ .Arch }}.syso
+
+archives:
+  - id: stream-deck-emulator
+    formats: [zip]
+    wrap_in_directory: false
+    files:
+      - README.md
+      - LICENSE
+
+checksum:
+  name_template: checksums.txt
+
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "--bundle=${signature}"
+      - "${artifact}"
+      - "--yes"
+    artifacts: checksum
+    output: true
+
+sboms:
+  - id: stream-deck-emulator-sbom
+    artifacts: archive
+
+snapshot:
+  version_template: "{{ .Version }}-SNAPSHOT-{{.ShortCommit}}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^chore:"

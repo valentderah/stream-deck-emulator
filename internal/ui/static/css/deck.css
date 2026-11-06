@@ -1,5 +1,11 @@
 .panel {
-  --gx: calc(var(--k) * .24);
+  /* Key size fits the page: --gf is the gap as a fraction of a key, --rows
+     and --cols are set by deck.js. */
+  --gf: .24;
+  --units: max(5.96, calc(var(--cols) + (var(--cols) - 1) * var(--gf)));
+  --vunits: max(3.95, calc(var(--rows) * 1.24));
+  --k: clamp(28px, min((100vw - 84px) / var(--units), (100dvh - 292px) / var(--vunits)), 104px);
+  --gx: calc(var(--k) * var(--gf));
   --gy: calc(var(--k) * .24);
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--k));
@@ -9,8 +15,13 @@
   margin: 0 auto;
   transition: opacity .2s;
 }
-.panel[data-model="plus"] { --gx: calc(var(--k) * .4); }
-.panel[data-model="neo"] { --gx: calc(var(--k) * .34); --gy: calc(var(--k) * .34); }
+.panel[data-model="plus"], .panel[data-model="plus-xl"] { --gf: .4; }
+.panel[data-model="plus-xl"] { --vunits: 8; }
+.panel[data-model="neo"] { --gf: .34; --gy: calc(var(--k) * .34); }
+.panel[data-model="studio"] {
+  --units: calc(var(--cols) + 2 + (var(--cols) + 1) * var(--gf));
+  grid-template-columns: repeat(calc(var(--cols) + 2), var(--k));
+}
 .device.off .panel { opacity: .35; pointer-events: none; }
 
 .key { box-sizing: border-box; width: var(--k); height: var(--k); border: 2px solid #454545; border-radius: 18%; background: #232323; cursor: pointer; overflow: hidden; }
@@ -18,6 +29,7 @@
 .face { display: block; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .face:not([src]) { visibility: hidden; }
 .rotated { transform: rotate(180deg); }
+.quarter-turn { transform: rotate(90deg); }
 .face, .strip { filter: brightness(var(--brightness, 1)); }
 
 .strip { box-sizing: border-box; grid-column: 1 / -1; display: block; width: 100%; aspect-ratio: var(--w) / var(--h); border: 2px solid #454545; border-radius: calc(var(--k) * .08); background: #000; cursor: pointer; touch-action: none; -webkit-user-drag: none; }
