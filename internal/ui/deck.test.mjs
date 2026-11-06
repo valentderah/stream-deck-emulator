@@ -22,7 +22,7 @@ test('key orientation corrections preserve layout and input indices', () => {
     ['xl', 4, 8, true, false, 'face rotated'],
     ['plus-xl', 4, 9, false, true, 'face quarter-turn'],
     ['module', 3, 5, true, false, 'face rotated'],
-    ['module-vert', 5, 3, true, false, 'face quarter-turn'],
+    ['module-vert', 5, 3, true, false, 'face rotated'],
     ['studio', 2, 16, false, false, 'face'],
     ['pedal', 1, 3, false, false, 'face'],
   ];
