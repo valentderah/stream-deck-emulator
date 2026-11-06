@@ -155,6 +155,58 @@ func TestPedalIgnoresKeyImages(t *testing.T) {
 	}
 }
 
+func TestStudioDials(t *testing.T) {
+	if Studio.Dials != 2 {
+		t.Fatalf("Studio has %d dials", Studio.Dials)
+	}
+	d := attached(Studio)
+	for i := range Studio.Dials {
+		if err := d.PressDial(i, true); err != nil {
+			t.Fatal(err)
+		}
+		r := <-d.In()
+		want := []byte{1, 3, 3, 0, 0, 1, 0}
+		if i == 1 {
+			want[6] = 1
+		}
+		if !bytes.Equal(r[:len(want)], want) {
+			t.Errorf("dial %d press: %x, want %x", i, r[:len(want)], want)
+		}
+		if err := d.RotateDial(i, -2); err != nil {
+			t.Fatal(err)
+		}
+		r = <-d.In()
+		want = []byte{1, 3, 3, 0, 1, 0, 0}
+		want[5+i] = 254
+		if !bytes.Equal(r[:len(want)], want) {
+			t.Errorf("dial %d rotate: %x, want %x", i, r[:len(want)], want)
+		}
+	}
+	for _, i := range []int{-1, 2} {
+		if err := d.PressDial(i, true); !errors.Is(err, ErrInput) {
+			t.Errorf("press dial %d: %v", i, err)
+		}
+		if err := d.RotateDial(i, 1); !errors.Is(err, ErrInput) {
+			t.Errorf("rotate dial %d: %v", i, err)
+		}
+	}
+	d.Reset()
+	if err := d.PressDial(1, true); err != nil {
+		t.Fatal(err)
+	}
+	r := <-d.In()
+	if !bytes.Equal(r[:7], []byte{1, 3, 3, 0, 0, 0, 1}) {
+		t.Errorf("dial state after reset: %x", r[:7])
+	}
+	if err := d.PressDial(1, false); err != nil {
+		t.Fatal(err)
+	}
+	r = <-d.In()
+	if !bytes.Equal(r[:7], []byte{1, 3, 3, 0, 0, 0, 0}) {
+		t.Errorf("dial release: %x", r[:7])
+	}
+}
+
 func TestSerialsAreUnique(t *testing.T) {
 	seen := map[string]string{}
 	for _, m := range Models() {

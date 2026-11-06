@@ -166,6 +166,7 @@ var Studio = Model{
 	Rows:      2,
 	Cols:      16,
 	KeySize:   144,
+	Dials:     2,
 	Features:  features(unitInfo(2, 16, 144, 2304, 288)),
 }
 

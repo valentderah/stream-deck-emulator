@@ -25,7 +25,7 @@ It is built for plugin developers who do not own every model.
 | Stream Deck + XL | `plus-xl` | 36 keys (9x4), 6 dials, touch strip |
 | Stream Deck Module | `module` | 15 keys (5x3) |
 | Stream Deck Module Vertical | `module-vert` | 15 keys (3x5), same product id as Module |
-| Stream Deck Studio | `studio` | 32 keys (16x2) |
+| Stream Deck Studio | `studio` | 32 keys (16x2), 2 dials at the left and right |
 | Stream Deck Pedal | `pedal` | 3 keys, no displays |
 
 All models speak the v2 protocol. The original Stream Deck and the Mini use the older v1 protocol and are not emulated yet.
@@ -118,6 +118,8 @@ The web UI talks to the emulator over HTTP, and scripts can do the same: press k
 A successful `POST` answers `204`. An error answers with a JSON body such as `{"code":"unsupported_input"}`. A key or screen the app has not drawn yet answers `204` without a body.
 
 Keys are numbered from 0, left to right and top to bottom. The touch keys of the Neo follow the regular keys: 8 and 9. Dials are numbered from 0, left to right.
+
+Studio's two dials flank the key grid, centered between its two rows: dial 0 on the left and dial 1 on the right. Scroll to rotate and click to press, as on the + models.
 
 Press and release key 0:
 

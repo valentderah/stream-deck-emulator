@@ -42,6 +42,10 @@ function pressable(node, report) {
 function buildKeys(deck, info, send) {
   for (let i = 0; i < info.rows * info.cols; i++) {
     const key = el('div', 'key', deck.panel);
+    if (info.id === 'studio') {
+      key.style.gridColumnStart = i % info.cols + 2;
+      key.style.gridRowStart = Math.floor(i / info.cols) + 1;
+    }
     deck.keys.push(picture(info.quarterTurn ? 'face quarter-turn' : info.rotated ? 'face rotated' : 'face', key));
     pressable(key, down => send({ type: 'key', index: i, down }));
   }
@@ -81,7 +85,12 @@ function buildDials(deck, info, send) {
   const offset = Math.max(0, Math.floor((info.cols - info.dials) / 2));
   for (let i = 0; i < info.dials; i++) {
     const dial = el('div', 'dial', deck.panel);
-    if (i === 0 && offset) dial.style.gridColumnStart = offset + 1;
+    if (info.id === 'studio') {
+      dial.style.gridColumnStart = i === 0 ? 1 : info.cols + 2;
+      dial.style.gridRow = `1 / span ${info.rows}`;
+    } else if (i === 0 && offset) {
+      dial.style.gridColumnStart = offset + 1;
+    }
     let angle = 0;
     dial.addEventListener('wheel', e => {
       e.preventDefault();

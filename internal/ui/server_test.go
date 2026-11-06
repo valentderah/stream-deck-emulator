@@ -130,6 +130,46 @@ func TestDevices(t *testing.T) {
 	if p := byID["pedal"]; p.Rows != 1 || p.Cols != 3 || p.KeySize != 0 || p.Strip != nil {
 		t.Errorf("pedal: %+v", p)
 	}
+	if s := byID["studio"]; s.Rows != 2 || s.Cols != 16 || s.Dials != 2 || s.Strip != nil || s.Screen != nil {
+		t.Errorf("studio: %+v", s)
+	}
+}
+
+func TestStudioDialInput(t *testing.T) {
+	r := newRig([]string{testHost})
+	d := r.devices["studio"]
+	d.SetAttached(true)
+	for _, tc := range []struct {
+		body string
+		want []byte
+	}{
+		{`{"type":"dialPress","index":0,"down":true}`, []byte{1, 3, 3, 0, 0, 1, 0}},
+		{`{"type":"dialPress","index":1,"down":true}`, []byte{1, 3, 3, 0, 0, 1, 1}},
+		{`{"type":"dialRotate","index":0,"ticks":1}`, []byte{1, 3, 3, 0, 1, 1, 0}},
+		{`{"type":"dialRotate","index":1,"ticks":-1}`, []byte{1, 3, 3, 0, 1, 0, 255}},
+	} {
+		rec := r.do("POST", "/api/devices/studio/input", tc.body)
+		if rec.Code != http.StatusNoContent {
+			t.Fatalf("input %s: status %d: %s", tc.body, rec.Code, rec.Body)
+		}
+		select {
+		case report := <-d.In():
+			if !reflect.DeepEqual(report[:len(tc.want)], tc.want) {
+				t.Errorf("input %s: report %x, want %x", tc.body, report[:len(tc.want)], tc.want)
+			}
+		default:
+			t.Fatalf("input %s: no report", tc.body)
+		}
+	}
+	for _, body := range []string{
+		`{"type":"dialPress","index":2,"down":true}`,
+		`{"type":"dialRotate","index":2,"ticks":1}`,
+	} {
+		rec := r.do("POST", "/api/devices/studio/input", body)
+		if rec.Code != http.StatusBadRequest || errorCode(t, rec) != codeUnsupportedInput {
+			t.Errorf("input %s: status %d: %s", body, rec.Code, rec.Body)
+		}
+	}
 }
 
 func TestKeyImage(t *testing.T) {

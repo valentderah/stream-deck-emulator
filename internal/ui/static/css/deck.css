@@ -18,6 +18,10 @@
 .panel[data-model="plus"], .panel[data-model="plus-xl"] { --gf: .4; }
 .panel[data-model="plus-xl"] { --vunits: 8; }
 .panel[data-model="neo"] { --gf: .34; --gy: calc(var(--k) * .34); }
+.panel[data-model="studio"] {
+  --units: calc(var(--cols) + 2 + (var(--cols) + 1) * var(--gf));
+  grid-template-columns: repeat(calc(var(--cols) + 2), var(--k));
+}
 .device.off .panel { opacity: .35; pointer-events: none; }
 
 .key { box-sizing: border-box; width: var(--k); height: var(--k); border: 2px solid #454545; border-radius: 18%; background: #232323; cursor: pointer; overflow: hidden; }

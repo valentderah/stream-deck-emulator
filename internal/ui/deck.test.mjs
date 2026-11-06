@@ -65,3 +65,59 @@ test('+ XL strip stays horizontal with unchanged touch coordinates', () => {
   strip.handlers.pointerup(event);
   assert.deepEqual(sent, [{ type: 'touch', kind: 1, x: 600, y: 50 }]);
 });
+
+test('Studio places two working dials beside the unchanged 16-by-2 key grid', () => {
+  const sent = [];
+  const deck = createDeck({
+    id: 'studio', rows: 2, cols: 16, dials: 2,
+  }, body => sent.push(body));
+  assert.equal(deck.panel.children.length, 34);
+  assert.deepEqual(deck.hints, ['hint.dial']);
+  const keys = deck.panel.children.slice(0, 32);
+  keys.forEach((key, index) => {
+    assert.equal(key.style.gridColumnStart, index % 16 + 2);
+    assert.equal(key.style.gridRowStart, Math.floor(index / 16) + 1);
+    key.handlers.pointerdown();
+    key.handlers.pointerup();
+    assert.deepEqual(sent.slice(-2), [
+      { type: 'key', index, down: true },
+      { type: 'key', index, down: false },
+    ]);
+  });
+  deck.panel.children.slice(32).forEach((dial, index) => {
+    assert.equal(dial.className, 'dial');
+    assert.equal(dial.style.gridColumnStart, index === 0 ? 1 : 18);
+    assert.equal(dial.style.gridRow, '1 / span 2');
+    dial.handlers.pointerdown();
+    dial.handlers.pointerup();
+    for (const deltaY of [-1, 1]) {
+      let prevented = false;
+      dial.handlers.wheel({ deltaY, preventDefault() { prevented = true; } });
+      assert.ok(prevented);
+    }
+    assert.deepEqual(sent.slice(-4), [
+      { type: 'dialPress', index, down: true },
+      { type: 'dialPress', index, down: false },
+      { type: 'dialRotate', index, ticks: 1 },
+      { type: 'dialRotate', index, ticks: -1 },
+    ]);
+    assert.equal(dial.style.rotate, '0deg');
+  });
+});
+
+test('Plus models keep their dials in a centered row beneath the strip', () => {
+  for (const [id, rows, cols, dials, width] of [
+    ['plus', 2, 4, 4, 800],
+    ['plus-xl', 4, 9, 6, 1200],
+  ]) {
+    const deck = createDeck({
+      id, rows, cols, dials, strip: { w: width, h: 100 },
+    }, () => {});
+    assert.equal(deck.panel.children[rows * cols].className, 'strip');
+    deck.panel.children.slice(rows * cols + 1).forEach((dial, index) => {
+      assert.equal(dial.className, 'dial');
+      assert.equal(dial.style.gridRow, undefined);
+      assert.equal(dial.style.gridColumnStart, id === 'plus-xl' && index === 0 ? 2 : undefined);
+    });
+  }
+});
